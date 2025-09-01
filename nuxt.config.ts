@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
@@ -22,12 +21,12 @@ export default defineNuxtConfig({
   vue: {},
 
   runtimeConfig: {
-    // Private server-side variables
+    // Cấu hình các biến môi trường trên server và client
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseApiKey: process.env.SUPABASE_API_KEY,
     openaiApiKey: process.env.OPENAI_API_KEY,
     public: {
-      strapiUrl: process.env.STRAPI_URL,
+      strapiUrl: process.env.STRAPI_URL, // Lấy STRAPI_URL từ biến môi trường
     },
   },
 
@@ -67,7 +66,7 @@ export default defineNuxtConfig({
 
   hooks: {
     "pages:extend"(pages) {
-      // playbook- is a functional name that we use in the code to replace and parse the paths
+      // Thêm các route mới vào nuxt
       pages.push({
         name: "playbook-embedded-ipaas",
         path: "/embedded-ipaas:all(.*)",
@@ -93,9 +92,9 @@ export default defineNuxtConfig({
   },
 });
 
-
 const getBlogUrls = async function () {
-  const perPage = 5;
+  const config = useRuntimeConfig(); // Lấy cấu hình runtime
+  const perPage = 5;  // Số bài viết trên mỗi trang
 
   let allBlogUrls = [];
   let start = 0;
@@ -107,10 +106,12 @@ const getBlogUrls = async function () {
   let blogPosts = null;
 
   while (total == null || start < total) {
-    const blogPostsUrl = `${process.env.STRAPI_URL}/api/posts?sort=createdAt:desc&pagination[page]=${start}&pagination[pageSize]=${perPage}&populate[author][populate]=photo&populate=categories`;
+    // Sử dụng config.public.strapiUrl thay vì process.env.STRAPI_URL
+    blogPostsUrl = `${config.public.strapiUrl}/api/posts?sort=createdAt:desc&pagination[page]=${start}&pagination[pageSize]=${perPage}&populate[author][populate]=photo&populate=categories`;
     blogPostsResponse = await fetch(blogPostsUrl);
     blogPosts = await blogPostsResponse.json();
 
+    // Thêm các URL bài viết vào mảng allBlogUrls
     allBlogUrls = [
       ...allBlogUrls,
       ...blogPosts.data.map((blog) => {
@@ -120,19 +121,20 @@ const getBlogUrls = async function () {
 
     if (total == null) total = blogPosts.meta.pagination.total;
 
-    start += limit;
+    start += limit; // Tăng chỉ số trang
   }
 
-  return allBlogUrls;
+  return allBlogUrls; // Trả về tất cả URL bài viết
 };
 
-
 const getPieceUrls = async function () {
-  const piecesUrl = "https://cloud.activepieces.com/api/v1/pieces";
+  const piecesUrl = "https://cloud.activepieces.com/api/v1/pieces"; // API lấy các "pieces"
   const piecesResponse = await fetch(piecesUrl);
   const pieces = await piecesResponse.json();
 
+  // Trả về các URL được tạo từ tên "piece"
   return pieces.map(
     (piece) => `/pieces/${piece.name.match(/(?:^@[\w-]+\/piece-)([\w-]+)$/)[1]}`
   );
 };
+

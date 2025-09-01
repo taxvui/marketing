@@ -106,7 +106,7 @@ const getBlogUrls = async function () {
   let blogPosts = null;
 
   while (total == null || start < total) {
-    const blogPostsUrl = `${process.env.STRAPI_URL}/api/articles?sort=createdAt:desc&pagination[page]=${start}&pagination[pageSize]=${perPage}&populate[author][populate]=photo&populate=categories`;
+    const blogPostsUrl = `${process.env.STRAPI_URL}/api/articles?sort=createdAt:description&pagination[page]=${start}&pagination[pageSize]=${perPage}`;
     blogPostsResponse = await fetch(blogPostsUrl);
     blogPosts = await blogPostsResponse.json();
 

@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
-    "@nuxtjs/sitemap": "^5.2.0",
+    "@nuxtjs/sitemap": "^7.4.3",
     "autoprefixer": "^10.4.16",
     "nuxt": "^3.8.2",
     "postcss": "^8.4.31",

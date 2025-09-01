@@ -92,38 +92,33 @@ export default defineNuxtConfig({
     },
   },
 });
-
 const getBlogUrls = async function () {
   const perPage = 5;
 
   let allBlogUrls = [];
-  let start = 0;
-  let limit = perPage;
+  let page = 1; // Đặt page bắt đầu từ 1 nếu API yêu cầu như vậy
   let total = null;
 
-  let blogPostsUrl = null;
   let blogPostsResponse = null;
   let blogPosts = null;
 
-  while (total == null || start < total) {
-    const blogPostsUrl = `${process.env.STRAPI_URL}/api/posts?sort=createdAt:desc&pagination[page]=${start}&pagination[pageSize]=${perPage}&populate[author][populate]=photo&populate=categories`;
+  while (total == null || (page - 1) * perPage < total) { // Điều chỉnh điều kiện vòng lặp
+    const blogPostsUrl = `${process.env.STRAPI_URL}/api/posts?sort=createdAt:desc&pagination[page]=${page}&pagination[pageSize]=${perPage}&populate[author][populate]=photo&populate=categories`;
     blogPostsResponse = await fetch(blogPostsUrl);
     blogPosts = await blogPostsResponse.json();
 
     allBlogUrls = [
       ...allBlogUrls,
-      ...blogPosts.data.map((blog) => {
-        return `/blog/${blog.slug}`;
-      }),
+      ...blogPosts.data.map((blog) => `/blog/${blog.slug}`), // Lấy slug và thêm vào URL
     ];
 
-    if (total == null) total = blogPosts.meta.pagination.total;
-
-    start += limit;
+    if (total == null) total = blogPosts.meta.pagination.total; // Lấy tổng số bài viết
+    page++; // Tăng page sau mỗi lần lặp
   }
 
   return allBlogUrls;
 };
+
 
 const getPieceUrls = async function () {
   const piecesUrl = "https://cloud.activepieces.com/api/v1/pieces";
